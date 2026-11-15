@@ -71,7 +71,8 @@
 
 .member {
   display: grid;
-  grid-template-columns: 28px minmax(140px, 1.4fr) minmax(0, 1fr) 110px auto;
+  grid-template-columns: 28px minmax(160px, 1.6fr) minmax(0, 1fr) 100px 220px;
+  justify-items: start;
   align-items: center;
   gap: 12px;
   min-height: 38px;
@@ -83,6 +84,10 @@
 
   @media (max-width: 720px) {
     grid-template-columns: 24px minmax(0, 1fr) auto;
+
+    > :last-child {
+      justify-self: end;
+    }
 
     .memberProviders,
     .memberCreds {
@@ -129,9 +134,14 @@
 }
 
 .memberCreds {
+  justify-self: end;
   font-size: 12px;
   color: var(--text-tertiary);
   text-align: right;
+}
+
+.member > :last-child {
+  justify-self: end;
 }
 
 .empty {

@@ -2,6 +2,7 @@ import { describe, expect, test } from 'bun:test';
 import {
   fillDailyUsage,
   formatLocalDate,
+  formatUtcDate,
   normalizeRecentUsage,
   normalizeUsageSummary,
   resolveUsageRange,
@@ -83,12 +84,13 @@ describe('proxx usage normalization', () => {
     expect(usageFailureRate({ requests: 4, failures: 1 })).toBe(25);
   });
 
-  test('date ranges use local calendar days', () => {
-    const now = new Date(2026, 10, 16, 23, 59);
-    expect(formatLocalDate(now)).toBe('2026-11-16');
+  test('date ranges use UTC calendar days like the backend buckets', () => {
+    expect(formatLocalDate(new Date(2026, 10, 16, 23, 59))).toBe('2026-11-16');
+    const now = new Date(Date.UTC(2026, 10, 16, 23, 59));
+    expect(formatUtcDate(now)).toBe('2026-11-16');
     expect(resolveUsageRange('today', now)).toEqual({ from: '2026-11-16', to: '2026-11-16' });
     expect(resolveUsageRange('7d', now)).toEqual({ from: '2026-11-10', to: '2026-11-16' });
-    expect(resolveUsageRange('30d', new Date(2026, 2, 1))).toEqual({
+    expect(resolveUsageRange('30d', new Date(Date.UTC(2026, 2, 1, 0, 30)))).toEqual({
       from: '2026-01-31',
       to: '2026-03-01',
     });

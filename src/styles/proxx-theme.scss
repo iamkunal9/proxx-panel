@@ -300,6 +300,13 @@ body {
     transform: scale(0.98);
   }
 
+  // Icon + label children share the one span the Button component renders.
+  > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
   &.btn-primary {
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.14),

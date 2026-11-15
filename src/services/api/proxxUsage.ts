@@ -40,14 +40,20 @@ const parseLocalDate = (value: string): Date | null => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
+/** YYYY-MM-DD of the UTC calendar day; the backend aggregates usage by UTC day. */
+export function formatUtcDate(date: Date): string {
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+}
+
+/** Inclusive range of UTC days ending today (UTC), matching the backend's day buckets. */
 export function resolveUsageRange(
   preset: UsageRangePreset,
   now: Date = new Date()
 ): { from: string; to: string } {
-  const to = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const to = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const from = new Date(to);
-  from.setDate(from.getDate() - (PRESET_DAYS[preset] - 1));
-  return { from: formatLocalDate(from), to: formatLocalDate(to) };
+  from.setUTCDate(from.getUTCDate() - (PRESET_DAYS[preset] - 1));
+  return { from: formatUtcDate(from), to: formatUtcDate(to) };
 }
 
 export const emptyUsageTotals = (): UsageTotals => ({
