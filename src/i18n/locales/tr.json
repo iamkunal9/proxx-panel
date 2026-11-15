@@ -57,11 +57,11 @@
     "unsaved_changes_message": "Kaydedilmemiş Değişiklikler Var. Şimdi Ayrılırsan Bunlar Silinir. Ayrılmak İstiyor Musun?"
   },
   "title": {
-    "login": "CLIProxyAPI Yönetim Merkezi",
-    "abbr": "CPAMC"
+    "login": "proxx Yönetim Konsolu",
+    "abbr": "proxx"
   },
   "splash": {
-    "title": "CLIProxyAPI",
+    "title": "proxx",
     "subtitle": "Yönetim Merkezi"
   },
   "login": {
@@ -1941,7 +1941,7 @@
     "models_catalog_refresh_success": "Model kataloğu güncellendi.",
     "models_catalog_refresh_failed": "Model kataloğu güncellenemedi",
     "title": "Yönetim Merkezi Bilgisi",
-    "about_title": "CLIProxyAPI Yönetim Merkezi",
+    "about_title": "proxx Yönetim Konsolu",
     "models_title": "Kullanılabilir Modeller",
     "models_desc": "“Listeyi yenile”ye tıklayarak güncel kullanılabilir modelleri görüntüleyin. Yeni bir model görünmüyorsa “Model kataloğunu güncelle”yi deneyin.",
     "models_loading": "Kullanılabilir Modeller Yükleniyor...",
@@ -2011,7 +2011,7 @@
     "toggle_collapse": "Kenar Çubuğunu Daralt",
     "expand": "Genişlet",
     "collapse": "Daralt",
-    "subtitle": "CLIProxyAPI Konsolu",
+    "subtitle": "proxx Konsolu",
     "auth_files_count": "Kimlik Doğrulama Dosyaları: {{count}}"
   },
   "footer": {

@@ -31,7 +31,7 @@ import {
   IconSidebarSystem,
   IconChevronDown,
 } from '@/components/ui/icons';
-import { INLINE_LOGO_JPEG } from '@/assets/logoInline';
+import { PROXX_LOGO_SVG as INLINE_LOGO_JPEG } from '@/assets/proxxLogo';
 import {
   useAuthStore,
   useLoginTransitionStore,
@@ -265,11 +265,11 @@ const THEME_CARDS: Array<{
     key: 'auto',
     labelKey: 'theme.auto',
     colors: {
-      bg: 'linear-gradient(135deg, #ffffff 0 50%, #111111 50% 100%)',
-      card: 'linear-gradient(135deg, #ffffff 0 50%, #1a1a1a 50% 100%)',
-      border: '#bdbdbd',
-      text: '#2d2a26',
-      textMuted: 'linear-gradient(135deg, #c9c9c9 0 50%, #5a5a5a 50% 100%)',
+      bg: 'linear-gradient(135deg, #ffffff 0 50%, #0a0a0c 50% 100%)',
+      card: 'linear-gradient(135deg, #f7f7f8 0 50%, #111113 50% 100%)',
+      border: '#a1a1aa',
+      text: '#1b1b1f',
+      textMuted: 'linear-gradient(135deg, #b5b6be 0 50%, #4b4b53 50% 100%)',
     },
   },
   {
@@ -277,32 +277,32 @@ const THEME_CARDS: Array<{
     labelKey: 'theme.white',
     colors: {
       bg: '#ffffff',
-      card: '#ffffff',
-      border: '#e5e5e5',
-      text: '#2d2a26',
-      textMuted: '#a29c95',
+      card: '#fbfbfc',
+      border: '#e7e7eb',
+      text: '#1b1b1f',
+      textMuted: '#b5b6be',
     },
   },
   {
     key: 'light',
     labelKey: 'theme.light',
     colors: {
-      bg: '#faf9f5',
-      card: '#f0eee8',
-      border: '#e3e1db',
-      text: '#2d2a26',
-      textMuted: '#a29c95',
+      bg: '#fbfbfc',
+      card: '#f7f7f8',
+      border: '#e7e7eb',
+      text: '#1b1b1f',
+      textMuted: '#8a8b95',
     },
   },
   {
     key: 'dark',
     labelKey: 'theme.dark',
     colors: {
-      bg: '#151412',
-      card: '#1d1b18',
-      border: '#3a3530',
-      text: '#f6f4f1',
-      textMuted: '#9c958d',
+      bg: '#0a0a0c',
+      card: '#111113',
+      border: '#232327',
+      text: '#ededef',
+      textMuted: '#5e6ad2',
     },
   },
 ];
@@ -350,7 +350,7 @@ export function MainLayout() {
   const themeMenuRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
 
-  const fullBrandName = 'CLI Proxy API Management Center';
+  const fullBrandName = 'proxx';
   const abbrBrandName = t('title.abbr');
   const arrivingFromLogin = useLoginTransitionStore((state) => state.phase === 'revealing');
   const isLogsPage = location.pathname.startsWith('/logs');
@@ -1154,7 +1154,7 @@ export function MainLayout() {
         >
           <div className="sidebar-header">
             <div className="sidebar-brand" title={fullBrandName}>
-              <img src={INLINE_LOGO_JPEG} alt="CPAMC logo" className="sidebar-brand-logo" />
+              <img src={INLINE_LOGO_JPEG} alt="proxx logo" className="sidebar-brand-logo" />
               {showSidebarLabels && (
                 <span className="sidebar-brand-text">
                   <span className="sidebar-brand-title">{abbrBrandName}</span>

@@ -57,11 +57,11 @@
     "unsaved_changes_message": "У вас есть несохранённые изменения. Если вы уйдёте, они будут потеряны. Выйти?"
   },
   "title": {
-    "login": "Центр управления CLI Proxy API",
-    "abbr": "CPAMC"
+    "login": "Консоль управления proxx",
+    "abbr": "proxx"
   },
   "splash": {
-    "title": "CLI Proxy API",
+    "title": "proxx",
     "subtitle": "Центр управления"
   },
   "login": {
@@ -2015,7 +2015,7 @@
     "toggle_collapse": "Свернуть боковую панель",
     "expand": "Развернуть",
     "collapse": "Свернуть",
-    "subtitle": "Консоль управления CLI Proxy API",
+    "subtitle": "Консоль proxx",
     "auth_files_count": "Файлов аутентификации: {{count}}"
   },
   "footer": {

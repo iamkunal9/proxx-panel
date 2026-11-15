@@ -8,6 +8,8 @@
 @use './themes.scss';
 @use './components.scss';
 @use './layout.scss';
+// proxx: theme layer, loaded last so it wins the cascade (see docs/proxx.md).
+@use './proxx-theme.scss';
 
 body {
   background-color: var(--bg-secondary);
