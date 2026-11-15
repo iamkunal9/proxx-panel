@@ -1,5 +1,7 @@
 # Repository Guidelines
 
+proxx fork: read `docs/proxx.md` (reskin files, upstream sync, new pages and their backend contracts) before changing theme files or the proxx pages; for this fork the backend is `../proxx`.
+
 ## Project Scope & Structure
 
 This is a React 19 + TypeScript + Vite management frontend for CLI Proxy API, not the proxy itself. It exclusively uses the backend v8 Management API under `/v8/management` and the v8 configuration layout; do not add v0 fallbacks or legacy config adapters. Plugin resources and custom HTTP extensions are exceptions: preserve their backend-declared paths. The one sanctioned v0 touchpoint is `src/services/api/legacyBackendProbe.ts`: after a v8 login 404 it only detects an outdated backend to show a clearer error, and must never supply application data or act as a login fallback.

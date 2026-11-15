@@ -1,8 +1,14 @@
+# proxx
+
+> The management panel for **proxx**, a fork of CLIProxyAPI. This is a reskin (dark-first, Linear-style) of the upstream
+> CLI Proxy API Management Center, plus Spend & usage, Model groups and Pricing pages. See [docs/proxx.md](./docs/proxx.md).
+> The upstream README follows.
+
 <div align="center">
 
 <img src="./logo.jpg" alt="CLI Proxy API" width="144">
 
-# CLI Proxy API Management Center
+## CLI Proxy API Management Center
 
 **Your proxy, at a glance. Your configuration, in control.**
 
