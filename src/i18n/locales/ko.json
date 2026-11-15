@@ -2529,7 +2529,7 @@
         "30d": "30 days"
       },
       "range_hint": {
-        "today": "Since midnight",
+        "today": "Since 00:00 UTC",
         "7d": "Last 7 days",
         "30d": "Last 30 days"
       },
