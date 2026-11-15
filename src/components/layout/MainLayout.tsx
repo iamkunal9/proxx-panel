@@ -49,6 +49,7 @@ import {
 } from '@/features/plugins/pluginResources';
 import { APIKEY_FUN_DISPLAY_NAME, hasApiKeyFunConfig } from '@/features/providers/sponsor';
 import { triggerHeaderRefresh } from '@/hooks/useHeaderRefresh';
+import { IconLayers, IconSpend, IconTag } from '@/components/proxx/icons';
 import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
 import { getSidebarShortcutLabel, isSidebarToggleShortcut } from '@/utils/sidebarShortcut';
@@ -641,6 +642,19 @@ export function MainLayout() {
           metaKey: 'nav_meta.routing',
           icon: sidebarIcons.routing,
         },
+        // proxx
+        {
+          path: '/model-groups',
+          labelKey: 'proxx.nav.model_groups',
+          metaKey: 'proxx.nav_meta.model_groups',
+          icon: <IconLayers size={18} />,
+        },
+        {
+          path: '/pricing',
+          labelKey: 'proxx.nav.pricing',
+          metaKey: 'proxx.nav_meta.pricing',
+          icon: <IconTag size={18} />,
+        },
         ...(isApiKeyFunConfigured ? [quickStartNavItem] : []),
       ],
     },
@@ -648,6 +662,13 @@ export function MainLayout() {
       id: 'observe',
       labelKey: 'nav_groups.observe',
       items: [
+        // proxx
+        {
+          path: '/spend',
+          labelKey: 'proxx.nav.spend',
+          metaKey: 'proxx.nav_meta.spend',
+          icon: <IconSpend size={18} />,
+        },
         {
           path: '/quota',
           labelKey: 'nav.quota_management',

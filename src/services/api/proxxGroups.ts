@@ -106,11 +106,7 @@ export function serializeModelGroupsConfig(groups: ModelGroupConfig[]): Record<s
 }
 
 export type ModelGroupValidationError =
-  | 'name_required'
-  | 'name_invalid'
-  | 'name_duplicate'
-  | 'models_required'
-  | 'self_reference';
+  'name_required' | 'name_invalid' | 'name_duplicate' | 'models_required' | 'self_reference';
 
 /** Validates one group against the others; returns the first problem or null. */
 export function validateModelGroup(

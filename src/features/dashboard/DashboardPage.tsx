@@ -20,6 +20,7 @@ import { ThroughputChart } from './components/ThroughputChart';
 import { useCountUp, useRevealGroup, useRevealOnScroll } from '@/hooks/motion';
 import { providerLabel, splitWindowMinutes, toneForSuccessRate, type MeterTone } from './utils';
 import styles from './dashboard.module.scss';
+import { SpendStrip } from '@/features/spend/components/SpendStrip';
 
 const DASH = '—';
 
@@ -309,6 +310,9 @@ export function DashboardPage() {
           />
         </div>
       </section>
+
+      {/* proxx: spend headline (renders nothing without the proxx usage API) */}
+      <SpendStrip />
 
       {/* ---------- KPI ---------- */}
       <section className={styles.statsRow} ref={statsRef} aria-label={t('dashboard.stats_aria')}>
