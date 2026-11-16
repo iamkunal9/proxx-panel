@@ -578,6 +578,16 @@
   font-size: 12px;
 }
 
+.retryLink {
+  margin-left: 6px;
+  border: 0;
+  background: none;
+  color: var(--proxx-accent-text);
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+
 .listSkeleton {
   flex: 1;
   display: flex;

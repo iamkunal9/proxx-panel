@@ -16,6 +16,8 @@ export interface RequestsListState {
   rows: RequestRow[];
   nextCursor: string;
   loadingMore: boolean;
+  /** Set when loading the next page failed; auto-loading pauses until a retry or reload. */
+  loadMoreError: boolean;
   refreshing: boolean;
   error: string;
   meta: RequestsMeta | null;
@@ -38,6 +40,7 @@ export function useRequestsList(filters: RequestFilters) {
     rows: [],
     nextCursor: '',
     loadingMore: false,
+    loadMoreError: false,
     refreshing: false,
     error: '',
     meta: null,
@@ -69,6 +72,7 @@ export function useRequestsList(filters: RequestFilters) {
         rows: items,
         nextCursor,
         loadingMore: false,
+        loadMoreError: false,
         refreshing: false,
         error: '',
         meta,
@@ -89,8 +93,8 @@ export function useRequestsList(filters: RequestFilters) {
     if (!connected) return;
     const { loadingMore, nextCursor: cursor } = stateRef.current;
     if (loadingMore || !cursor) return;
-    stateRef.current = { ...stateRef.current, loadingMore: true };
-    setState((current) => ({ ...current, loadingMore: true }));
+    stateRef.current = { ...stateRef.current, loadingMore: true, loadMoreError: false };
+    setState((current) => ({ ...current, loadingMore: true, loadMoreError: false }));
     const id = requestRef.current;
     const revision = apiClient.getConnectionRevision();
     try {
@@ -105,12 +109,12 @@ export function useRequestsList(filters: RequestFilters) {
         nextCursor: page.nextCursor,
         loadingMore: false,
       }));
-    } catch (error) {
+    } catch {
       if (id !== requestRef.current) return;
       setState((current) => ({
         ...current,
         loadingMore: false,
-        error: getErrorMessage(error, 'Request failed'),
+        loadMoreError: true,
       }));
     }
   }, [connected]);

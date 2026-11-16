@@ -264,7 +264,7 @@ export function RequestDetail({ id, row: listRow, tab, onTabChange, onClose, onD
             <dd>{formatAbsolute(time, i18n.language)}</dd>
           </div>
           <div className={styles.factWide}>
-            <dt>ID</dt>
+            <dt>{t('proxx.requests.id')}</dt>
             <dd className={styles.idRow}>
               <span className={styles.mono}>{id}</span>
               <CopyButton text={id} compact label={t('proxx.requests.copy_id')} />

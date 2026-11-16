@@ -2715,6 +2715,8 @@
     },
     "requests": {
       "title": "요청",
+      "id": "ID",
+      "load_more_failed": "Could not load more requests.",
       "detail_label": "Request detail",
       "logging_on": "Logging on",
       "logging_off": "Logging off",

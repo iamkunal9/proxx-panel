@@ -31,6 +31,7 @@ interface Props {
   now: number;
   hasMore: boolean;
   loadingMore: boolean;
+  loadMoreError: boolean;
   onSelect: (id: string) => void;
   onOpen: (id: string) => void;
   onLoadMore: () => void;
@@ -155,6 +156,7 @@ export const RequestList = forwardRef<RequestListHandle, Props>(function Request
     now,
     hasMore,
     loadingMore,
+    loadMoreError,
     onSelect,
     onOpen,
     onLoadMore,
@@ -198,10 +200,16 @@ export const RequestList = forwardRef<RequestListHandle, Props>(function Request
   const end = Math.min(rows.length, Math.ceil((scrollTop + height) / ROW_HEIGHT) + OVERSCAN);
 
   useEffect(() => {
-    if (hasMore && !loadingMore && end >= rows.length - LOAD_MORE_THRESHOLD && rows.length > 0) {
+    if (
+      hasMore &&
+      !loadingMore &&
+      !loadMoreError &&
+      end >= rows.length - LOAD_MORE_THRESHOLD &&
+      rows.length > 0
+    ) {
       onLoadMore();
     }
-  }, [end, rows.length, hasMore, loadingMore, onLoadMore]);
+  }, [end, rows.length, hasMore, loadingMore, loadMoreError, onLoadMore]);
 
   return (
     <div
@@ -272,7 +280,18 @@ export const RequestList = forwardRef<RequestListHandle, Props>(function Request
             ))}
             {hasMore ? (
               <div className={styles.loadingRow} style={{ top: rows.length * ROW_HEIGHT }}>
-                {loadingMore ? t('proxx.common.loading') : ''}
+                {loadingMore ? (
+                  t('proxx.common.loading')
+                ) : loadMoreError ? (
+                  <>
+                    {t('proxx.requests.load_more_failed')}
+                    <button type="button" className={styles.retryLink} onClick={onLoadMore}>
+                      {t('proxx.common.retry')}
+                    </button>
+                  </>
+                ) : (
+                  ''
+                )}
               </div>
             ) : null}
           </div>

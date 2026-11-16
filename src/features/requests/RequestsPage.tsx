@@ -61,6 +61,14 @@ const isTypingTarget = (target: EventTarget | null) => {
   return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || element.isContentEditable;
 };
 
+/** Buttons, links, tabs and other controls handle Enter/arrows themselves. */
+const isInteractiveTarget = (target: EventTarget | null) =>
+  Boolean(
+    (target as HTMLElement | null)?.closest?.(
+      'button, a, select, summary, [role="tab"], [role="radio"], [role="menuitem"], [role="separator"], aside'
+    )
+  );
+
 export function RequestsPage() {
   const { t } = useTranslation();
   const showNotification = useNotificationStore((state) => state.showNotification);
@@ -271,11 +279,14 @@ export function RequestsPage() {
   );
 
   const openRequest = useCallback((id: string) => setOpenId(id), []);
+  const loadMoreFn = list.loadMore;
+  const loadMore = useCallback(() => void loadMoreFn(), [loadMoreFn]);
 
   // Keyboard: `/` search, j/k move, Enter open, Esc close.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.metaKey || event.ctrlKey || event.altKey || confirmationOpen) return;
+      if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (confirmationOpen) return;
       if (event.key === 'Escape') {
         if (isTypingTarget(event.target)) {
           (event.target as HTMLElement).blur();
@@ -302,9 +313,10 @@ export function RequestsPage() {
         event.key === 'ArrowDown' ||
         event.key === 'ArrowUp'
       ) {
+        // Arrow keys keep their native meaning on controls and while reading an open detail.
         if (
           (event.key === 'ArrowDown' || event.key === 'ArrowUp') &&
-          (event.target as HTMLElement)?.closest?.('[role="tabpanel"]')
+          (openId || isInteractiveTarget(event.target))
         ) {
           return;
         }
@@ -316,7 +328,7 @@ export function RequestsPage() {
         if (openId) setOpenId(id);
         listRef.current?.scrollToIndex(next);
         if (next >= current.length - 5) void list.loadMore();
-      } else if (event.key === 'Enter' && index !== -1) {
+      } else if (event.key === 'Enter' && index !== -1 && !isInteractiveTarget(event.target)) {
         event.preventDefault();
         setOpenId(current[index].id);
       }
@@ -574,9 +586,10 @@ export function RequestsPage() {
                   now={now}
                   hasMore={!!list.nextCursor}
                   loadingMore={list.loadingMore}
+                  loadMoreError={list.loadMoreError}
                   onSelect={setSelectedId}
                   onOpen={openRequest}
-                  onLoadMore={() => void list.loadMore()}
+                  onLoadMore={loadMore}
                   onScrolledChange={setScrolled}
                   emptyText={
                     filtered ? t('proxx.requests.empty_filtered') : t('proxx.requests.empty')
