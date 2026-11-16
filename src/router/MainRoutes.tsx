@@ -14,6 +14,10 @@ import { ConfigPage } from '@/features/config/ConfigPage';
 import { LogsPage } from '@/features/logs/LogsPage';
 import { SystemPage } from '@/pages/SystemPage';
 import { useAuthStore } from '@/stores';
+// proxx fork pages
+import { SpendPage } from '@/features/spend/SpendPage';
+import { ModelGroupsPage } from '@/features/modelGroups/ModelGroupsPage';
+import { PricingPage } from '@/features/pricing/PricingPage';
 
 const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/', element: <DashboardPage /> },
@@ -30,6 +34,9 @@ const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/oauth', element: <OAuthPage /> },
   { path: '/routing', element: <RoutingPage /> },
   { path: '/quota', element: <QuotaPage /> },
+  { path: '/spend', element: <SpendPage /> },
+  { path: '/model-groups', element: <ModelGroupsPage /> },
+  { path: '/pricing', element: <PricingPage /> },
   ...(supportsPlugin
     ? [
         { path: '/plugin-pages/:pluginId/:menuIndex', element: <PluginResourcePage /> },
