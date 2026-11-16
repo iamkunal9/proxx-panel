@@ -106,3 +106,116 @@ export interface PriceOverride {
   reasoning: number | null;
   override: boolean;
 }
+
+/* Requests (request-log browser) -------------------------------------------------------------- */
+
+export type RequestStatusFilter = '' | '2xx' | '4xx' | '5xx' | 'error';
+
+/** One logged request. Unknown numbers are null and render as a dash. */
+export interface RequestRow {
+  id: string;
+  file: string;
+  time: string;
+  timeMs: number | null;
+  method: string;
+  path: string;
+  /** HTTP status; null when the backend did not record one. */
+  status: number | null;
+  durationMs: number | null;
+  stream: boolean;
+  requestedModel: string;
+  servedModel: string;
+  group: string;
+  provider: string;
+  inputTokens: number | null;
+  outputTokens: number | null;
+  reasoningTokens: number | null;
+  cachedTokens: number | null;
+  costUsd: number | null;
+  costSource: string;
+  attempts: number;
+  error: boolean;
+  sizeBytes: number | null;
+}
+
+export interface RequestListPage {
+  items: RequestRow[];
+  nextCursor: string;
+  requestLogEnabled: boolean;
+  totalSizeBytes: number | null;
+  /** 0 means unlimited. */
+  maxTotalSizeBytes: number;
+  logDir: string;
+}
+
+export interface RequestListQuery {
+  limit?: number;
+  cursor?: string;
+  status?: RequestStatusFilter;
+  model?: string;
+  provider?: string;
+  q?: string;
+  since?: number;
+  until?: number;
+}
+
+export type HeaderMap = Record<string, string[]>;
+
+export interface RequestClientSection {
+  url: string;
+  method: string;
+  headers: HeaderMap;
+  body: string;
+  bodyTruncated: boolean;
+}
+
+export interface RequestAttempt {
+  index: number;
+  url: string;
+  method: string;
+  headers: HeaderMap;
+  body: string;
+  bodyTruncated: boolean;
+  status: number | null;
+  responseHeaders: HeaderMap;
+  responseBody: string;
+  responseTruncated: boolean;
+  error: string;
+  timestamp: string;
+}
+
+export interface SseEvent {
+  event: string;
+  data: string;
+}
+
+export interface AssembledToolCall {
+  id: string;
+  name: string;
+  arguments: string;
+}
+
+export interface AssembledResponse {
+  text: string;
+  reasoning: string;
+  toolCalls: AssembledToolCall[];
+}
+
+export interface RequestResponseSection {
+  status: number | null;
+  headers: HeaderMap;
+  body: string;
+  bodyTruncated: boolean;
+  sseEvents: SseEvent[] | null;
+  assembled: AssembledResponse | null;
+}
+
+export interface RequestDetail {
+  row: RequestRow;
+  client: RequestClientSection;
+  attempts: RequestAttempt[];
+  response: RequestResponseSection;
+  websocketTimeline: string;
+  apiWebsocketTimeline: string;
+  rawSizeBytes: number | null;
+}

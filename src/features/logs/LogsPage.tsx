@@ -1,6 +1,7 @@
 import { useDeferredValue, useEffect, useMemo, useReducer, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -961,6 +962,10 @@ export function LogsPage() {
           >
             <div className={styles.errorBody}>
               <div className="hint">{t('logs.error_logs_description')}</div>
+              {/* proxx */}
+              <Link to="/requests" className="hint">
+                {t('proxx.requests.logs_link')} →
+              </Link>
 
               {requestLogEnabled && (
                 <div>
