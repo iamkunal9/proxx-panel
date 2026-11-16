@@ -18,6 +18,7 @@ import { useAuthStore } from '@/stores';
 import { SpendPage } from '@/features/spend/SpendPage';
 import { ModelGroupsPage } from '@/features/modelGroups/ModelGroupsPage';
 import { PricingPage } from '@/features/pricing/PricingPage';
+import { RequestsPage } from '@/features/requests/RequestsPage';
 
 const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/', element: <DashboardPage /> },
@@ -52,6 +53,7 @@ const createMainRoutes = (supportsPlugin: boolean) => [
       ]),
   { path: '/config', element: <ConfigPage /> },
   { path: '/logs', element: <LogsPage /> },
+  { path: '/requests', element: <RequestsPage /> },
   { path: '/system', element: <SystemPage /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ];

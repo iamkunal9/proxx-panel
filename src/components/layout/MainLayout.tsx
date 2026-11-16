@@ -49,7 +49,7 @@ import {
 } from '@/features/plugins/pluginResources';
 import { APIKEY_FUN_DISPLAY_NAME, hasApiKeyFunConfig } from '@/features/providers/sponsor';
 import { triggerHeaderRefresh } from '@/hooks/useHeaderRefresh';
-import { IconLayers, IconSpend, IconTag } from '@/components/proxx/icons';
+import { IconLayers, IconRequests, IconSpend, IconTag } from '@/components/proxx/icons';
 import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
 import { getSidebarShortcutLabel, isSidebarToggleShortcut } from '@/utils/sidebarShortcut';
@@ -354,7 +354,8 @@ export function MainLayout() {
   const fullBrandName = 'proxx';
   const abbrBrandName = t('title.abbr');
   const arrivingFromLogin = useLoginTransitionStore((state) => state.phase === 'revealing');
-  const isLogsPage = location.pathname.startsWith('/logs');
+  const isLogsPage =
+    location.pathname.startsWith('/logs') || location.pathname.startsWith('/requests'); // proxx
   const isPluginResourcePage = location.pathname.startsWith('/plugin-pages');
   const showSidebarLabels = !sidebarCollapsed || sidebarOpen;
 
@@ -680,6 +681,13 @@ export function MainLayout() {
           labelKey: 'nav.logs',
           metaKey: 'nav_meta.logs',
           icon: sidebarIcons.logs,
+        },
+        // proxx
+        {
+          path: '/requests',
+          labelKey: 'proxx.nav.requests',
+          metaKey: 'proxx.nav_meta.requests',
+          icon: <IconRequests size={18} />,
         },
       ],
     },

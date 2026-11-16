@@ -64,3 +64,16 @@ export function IconArrowDown({ size = 16, ...props }: IconProps) {
     </svg>
   );
 }
+
+/** Requests: a list of exchanged messages. */
+export function IconRequests({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...base(size)} {...props}>
+      <path d="M4 6h10" />
+      <path d="M4 12h16" />
+      <path d="M4 18h12" />
+      <path d="m17 3 3 3-3 3" />
+      <path d="m19 15-3 3 3 3" />
+    </svg>
+  );
+}

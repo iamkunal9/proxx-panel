@@ -7,7 +7,7 @@ proxx (a fork of CLIProxyAPI; backend source lives at `../proxx`).
 The fork has two parts:
 
 1. A **reskin**: a Linear-style theme, dark by default, plus proxx branding.
-2. **Three new pages** for fork-only backend features: Spend & usage, Model groups and Pricing.
+2. **Four new pages** for fork-only backend features: Spend & usage, Model groups, Pricing and Requests.
 
 Both parts are designed so that `git merge upstream/main` keeps working with few or no conflicts.
 
@@ -31,7 +31,7 @@ Keep the upstream side and re-add the proxx line.
 | `src/styles/variables.scss` | Compile-time SCSS colours (`$primary-color` etc.) and the Inter-first font stack. |
 | `src/stores/useThemeStore.ts` | The default theme is `dark` (a choice the user saved still wins). |
 | `index.html` | `data-theme="dark"` (prevents a light flash), title and favicon. |
-| `src/components/layout/MainLayout.tsx` | Theme preview card colours, brand name, sidebar entries for the new pages. |
+| `src/components/layout/MainLayout.tsx` | Theme preview card colours, brand name, sidebar entries for the new pages, and `/requests` reusing the fixed-height logs layout (`isLogsPage`). |
 | `src/assets/proxxLogo.ts` (new) | The inline SVG brand mark. Login, sidebar, System page and favicon import it in place of `logoInline`. |
 | `src/pages/login/DotMatrixHero.tsx`, `src/pages/LoginPage.tsx`, `src/main.tsx` | Brand strings only. |
 | `src/i18n/locales/*.json` | `title.*`, `splash.title`, `sidebar.subtitle` and `system_info.about_title` rebranded. All new keys sit in one top-level `proxx` block at the end of each file. |
@@ -55,12 +55,14 @@ All new code is in new files:
 - `src/features/spend/`
 - `src/features/modelGroups/`
 - `src/features/pricing/`
+- `src/features/requests/`
 - `src/components/proxx/` (shared page primitives, formatters and icons)
 - `src/services/api/proxx*.ts` (API modules and normalization)
 - `src/types/proxx.ts`
 
 Routes are added in `src/router/MainRoutes.tsx`. The dashboard renders `<SpendStrip />` with one
-line in `src/features/dashboard/DashboardPage.tsx`.
+line in `src/features/dashboard/DashboardPage.tsx`. The Logs page error-log tab has a one-line link
+to `/requests` (`src/features/logs/LogsPage.tsx`).
 
 Each page calls `/v8/management/proxx/*` through the shared `apiClient`. A 404 (or 501) means the
 backend is not a proxx build. In that case the page shows a "Requires the proxx backend" state,
@@ -116,11 +118,49 @@ A `cost_usd` of `null` means the cost is unknown. It is shown as "—" and is ne
 - The catalog table can be searched and shows at most 200 matching rows. "Override" on a catalog
   row opens the editor with that row's prices filled in.
 
+### Requests (`/#/requests`)
+
+Browses every request recorded while `observability.logs.request-log` is on.
+
+- `GET /proxx/requests?limit&cursor&status=2xx|4xx|5xx|error&model&provider&q&since&until`
+  (unix ms, newest first) → `{items: Row[], next_cursor ("" = end), request_log_enabled,
+  total_size_bytes, max_total_size_bytes (0 = unlimited), log_dir}`.
+  Row: `{id, file, time, time_ms, method, path, status, duration_ms|null, stream, requested_model,
+  served_model, group, provider, input_tokens|null, output_tokens|null, reasoning_tokens|null,
+  cached_tokens|null, cost_usd|null, cost_source, attempts, error, size_bytes}`.
+- `GET /proxx/requests/:id` → `{row, client:{url, method, headers, body, body_truncated},
+  attempts:[{index, url, method, headers, body, body_truncated, status|null, response_headers,
+  response_body, response_truncated, error, timestamp}], response:{status, headers, body,
+  body_truncated, sse_events|null, assembled:{text, reasoning, tool_calls}|null},
+  websocket_timeline, api_websocket_timeline, raw_size_bytes}`.
+- `GET /proxx/requests/:id/raw` (text), `DELETE /proxx/requests/:id`, `DELETE /proxx/requests` → `{removed}`.
+- `GET /proxx/requests/stream`: SSE, `event: request` with a Row. Read with `fetch()` (EventSource
+  cannot send the bearer key), reconnects with backoff, and after 3 failures polls the list every 3 s.
+- The logging toggle reuses `PUT /config/observability/logs/request-log` (same as the System page).
+
+What the page shows:
+
+- Header: logging pill + toggle, disk usage bar, Live toggle, refresh, Clear all.
+- Filters: server-side search (`/` focuses), status chips, model/provider (values seen so far), time range.
+- A windowed list (fixed 40 px rows, infinite scroll). Live rows animate in at the top; while the list
+  is scrolled down, or a search is active, they are held behind an "N new requests" pill.
+- Keyboard: `j`/`k` move, Enter opens, Esc closes.
+- A resizable detail split (full screen on mobile) with Transcript, Request (JSON tree, cURL with
+  `$PROXX_KEY`), Upstream (attempt cards and failover chain), Response (SSE events beside the
+  assembled text) and Raw (lazy, windowed, searchable, downloadable) tabs.
+- Transcript reconstruction (`src/features/requests/logic/transcript.ts`) supports OpenAI Chat,
+  OpenAI Responses, Claude Messages and Gemini. The format is detected from the path first, then from
+  the body shape. Markdown is rendered into React elements only, never as HTML strings.
+- Unknown values render as "—". If logging is off and nothing is recorded, an explainer with an
+  Enable button is shown; if older logs exist, a banner is shown above them.
+
 ## Tests
 
 - `tests/proxxApi.test.ts` covers normalization and serialization in the API modules, date ranges,
   zero-filling and validation.
 - `tests/proxxPages.test.ts` covers the page logic helpers and the money formatters.
+- `tests/proxxRequests.test.ts` covers the SSE parser, transcript reconstruction for all four formats,
+  request API normalization, live filtering and merging, and the cURL builder.
 
 ## Screenshots
 
@@ -130,3 +170,8 @@ model groups and pricing pages, plus the "requires proxx backend" state.
 The spend, groups and pricing screenshots used synthetic data served by a throwaway local proxy in
 front of the stock `../proxx` backend. That proxy is not part of this repository. Group and price
 edits in the screenshots went through the real config API.
+
+The `requests-*.png` shots use **mock data** from `scripts/mock-requests-server.ts`. That mock is a
+dependency-free Bun server that implements the Requests contract and serves `dist/index.html`. It is
+not shipped in the build. To run it: `bun run build && bun scripts/mock-requests-server.ts
+[--port 8399] [--logging-off]`, then open the URL it prints and log in with any key.
