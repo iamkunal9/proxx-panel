@@ -19,6 +19,7 @@ import { SpendPage } from '@/features/spend/SpendPage';
 import { ModelGroupsPage } from '@/features/modelGroups/ModelGroupsPage';
 import { PricingPage } from '@/features/pricing/PricingPage';
 import { RequestsPage } from '@/features/requests/RequestsPage';
+import { UpdatesPage } from '@/features/update/UpdatesPage';
 
 const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/', element: <DashboardPage /> },
@@ -55,6 +56,7 @@ const createMainRoutes = (supportsPlugin: boolean) => [
   { path: '/logs', element: <LogsPage /> },
   { path: '/requests', element: <RequestsPage /> },
   { path: '/system', element: <SystemPage /> },
+  { path: '/updates', element: <UpdatesPage /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ];
 

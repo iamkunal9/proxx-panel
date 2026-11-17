@@ -1,8 +1,25 @@
 # proxx
 
 > The management panel for **proxx**, a fork of CLIProxyAPI. This is a reskin (dark-first, Linear-style) of the upstream
-> CLI Proxy API Management Center, plus Spend & usage, Model groups and Pricing pages. See [docs/proxx.md](./docs/proxx.md).
-> The upstream README follows.
+> CLI Proxy API Management Center, plus Spend & usage, Model groups, Pricing, Requests and Updates pages. See
+> [docs/proxx.md](./docs/proxx.md). The proxx release convention comes first; the upstream README follows.
+
+### proxx release convention: `proxx-min-backend-api`
+
+Every panel release's notes contain one line naming the lowest backend update-API level the panel
+needs:
+
+```text
+proxx-min-backend-api: 1
+```
+
+- `N` is `MIN_BACKEND_API` in `src/services/api/proxxUpdate.ts`. The release workflow
+  (`.github/workflows/release.yml`) reads it from source and appends the line, so the two cannot drift.
+  Bump the constant whenever the panel starts relying on a newer `/v8/management/proxx/update` contract.
+- The proxx backend reports its own level as `api_level` from `GET /v8/management/proxx/update`. When it
+  fetches panel releases, it skips any panel whose `proxx-min-backend-api` is higher than its `api_level`.
+- If an older panel meets a backend with a lower `api_level` anyway, the Updates page shows a compatibility
+  warning.
 
 <div align="center">
 

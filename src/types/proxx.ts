@@ -219,3 +219,51 @@ export interface RequestDetail {
   apiWebsocketTimeline: string;
   rawSizeBytes: number | null;
 }
+
+// ---- Self-update (`/proxx/update`) ----
+
+export type UpdateState =
+  | 'idle'
+  | 'checking'
+  | 'downloading'
+  | 'verifying'
+  | 'staged'
+  | 'waiting_idle'
+  | 'applying'
+  | 'failed';
+
+export interface UpdateConfig {
+  check: boolean;
+  intervalHours: number;
+  autoApply: boolean;
+  /** "HH:MM-HH:MM" in the backend's local time; empty = any time. */
+  window: string;
+}
+
+export interface UpdateResult {
+  from: string;
+  to: string;
+  at: string;
+  ok: boolean;
+  rolledBack: boolean;
+  error: string;
+}
+
+export interface UpdateStatus {
+  /** 0 when the backend does not report a level. */
+  apiLevel: number;
+  currentVersion: string;
+  latestVersion: string;
+  updateAvailable: boolean;
+  releaseUrl: string;
+  releaseNotes: string;
+  checkedAt: string;
+  lastCheckError: string;
+  supported: boolean;
+  unsupportedReason: string;
+  state: UpdateState;
+  inflight: number;
+  stagedVersion: string;
+  config: UpdateConfig;
+  lastResult: UpdateResult | null;
+}

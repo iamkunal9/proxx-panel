@@ -77,3 +77,15 @@ export function IconRequests({ size = 20, ...props }: IconProps) {
     </svg>
   );
 }
+
+/** Updates: circular arrow with a down arrow. */
+export function IconUpdate({ size = 20, ...props }: IconProps) {
+  return (
+    <svg {...base(size)} {...props}>
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+      <path d="M12 8v7" />
+      <path d="m9 12 3 3 3-3" />
+    </svg>
+  );
+}

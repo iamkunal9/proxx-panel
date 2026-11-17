@@ -57,6 +57,14 @@ jobs:
           : > release-notes.md
           git log --pretty=format:"- %h %s" "${range}" >> release-notes.md
 
+          # proxx: the backend skips panels that need a newer update API (see README).
+          min_api="$(sed -n 's/^export const MIN_BACKEND_API = \([0-9][0-9]*\);$/\1/p' src/services/api/proxxUpdate.ts)"
+          if [ -z "${min_api}" ]; then
+            echo "MIN_BACKEND_API not found in src/services/api/proxxUpdate.ts" >&2
+            exit 1
+          fi
+          printf '\n\nproxx-min-backend-api: %s\n' "${min_api}" >> release-notes.md
+
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:

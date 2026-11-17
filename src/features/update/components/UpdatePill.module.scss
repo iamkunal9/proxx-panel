@@ -1,0 +1,64 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  max-width: 320px;
+  padding: 0 12px;
+  border: 1px solid var(--primary-30);
+  border-radius: 999px;
+  background: var(--proxx-accent-soft);
+  color: var(--proxx-accent-text);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--dur-hover) var(--ease-out-strong),
+    border-color var(--dur-hover) var(--ease-out-strong);
+
+  &:hover {
+    border-color: var(--primary-color);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--proxx-focus-ring);
+  }
+
+  svg {
+    flex: none;
+  }
+}
+
+.pillBusy svg {
+  animation: spin 1.4s linear infinite;
+}
+
+.label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 640px) {
+  .label {
+    max-width: 150px;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill {
+    transition: none;
+  }
+
+  .pillBusy svg {
+    animation: none;
+  }
+}
