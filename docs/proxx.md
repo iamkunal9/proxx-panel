@@ -188,6 +188,13 @@ What the panel shows:
   reports the target version. A new `last_result` with `rolled_back` or `!ok` shows a red rolled-back or
   failed state with the error. If the backend restarts but stays on the old version with no new result for
   15 s, that is shown as failed. An apply started by the backend itself (auto-apply) is tracked the same way.
+- Release notes have HTML comments (release-tooling markers) removed before rendering; any other raw HTML
+  is shown as text.
+- If the running build is newer than the latest release (for example `v8.0.73-proxx.4-rc.1` against
+  `v8.0.73-proxx.3`, ordered by `compareVersions`), the card says "Latest release / You're running a newer
+  build" and the notes become a collapsed "Latest release notes" section.
+- "Update now" uses the neutral secondary style whenever it is disabled, because a disabled primary
+  button still looks purple.
 - `supported: false` shows `unsupported_reason` and the install command, and disables "Update now".
 - A compatibility warning when `api_level` < `MIN_BACKEND_API` (`src/services/api/proxxUpdate.ts`). The
   release workflow appends `proxx-min-backend-api: N` to the panel release notes (see README).
@@ -223,4 +230,4 @@ not shipped in the build. To run it: `bun run build && bun scripts/mock-requests
 The `update-*.png` shots use **mock data** from `scripts/mock-update-server.ts`, which simulates the whole
 apply flow. Its restart really stops the HTTP listener for `--gap` ms (default 1200), so polls fail at the
 network level. Run it with `bun run build && bun scripts/mock-update-server.ts [--port 8398]
-[--scenario available|rollback|unsupported|uptodate|old] [--tick 1500] [--gap 1200] [--inflight 3]`.
+[--scenario available|rollback|unsupported|uptodate|newer|old] [--tick 1500] [--gap 1200] [--inflight 3]`.

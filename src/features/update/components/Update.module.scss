@@ -304,6 +304,22 @@
 
 /* ---------- Release notes ---------- */
 
+.notesDetails[open] .notesSummary {
+  margin-bottom: 12px;
+}
+
+.notesSummary {
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+
+  &:focus-visible {
+    outline: none;
+    border-radius: 4px;
+    box-shadow: var(--proxx-focus-ring);
+  }
+}
+
 .notes {
   max-height: 420px;
   overflow: auto;

@@ -24,7 +24,9 @@ import {
   isTerminal,
   isTracking,
   resultKey,
+  runningNewerBuild,
   safeHref,
+  stripHtmlComments,
   showStepper,
   stepperModel,
   type ApplyTracking,
@@ -243,6 +245,9 @@ export function UpdateView(props: UpdateViewProps) {
   const waiting = status.state === 'waiting_idle' && tracking.phase !== 'restarting';
   const targetVersion = status.stagedVersion || status.latestVersion;
   const lastResult = status.lastResult;
+  // Running a build newer than the latest release (e.g. an -rc): nothing to install.
+  const newerBuild = runningNewerBuild(status);
+  const notes = stripHtmlComments(status.releaseNotes);
 
   return (
     <div className={styles.stack}>
@@ -294,14 +299,16 @@ export function UpdateView(props: UpdateViewProps) {
             value={displayVersion(status.currentVersion)}
           />
           <ProxxKpi
-            label={t('proxx.update.latest')}
+            label={t(newerBuild ? 'proxx.update.latest_release' : 'proxx.update.latest')}
             value={displayVersion(status.latestVersion)}
             hint={
               status.updateAvailable
                 ? t('proxx.update.available_hint')
-                : status.latestVersion
-                  ? t('proxx.update.up_to_date')
-                  : undefined
+                : newerBuild
+                  ? t('proxx.update.newer_build')
+                  : status.latestVersion
+                    ? t('proxx.update.up_to_date')
+                    : undefined
             }
           />
           <ProxxKpi
@@ -326,7 +333,13 @@ export function UpdateView(props: UpdateViewProps) {
         ) : null}
 
         <div className={styles.actions}>
-          <Button onClick={onApply} disabled={!canApply} loading={applying}>
+          {/* A disabled primary button is still purple; use the neutral variant when unusable. */}
+          <Button
+            variant={canApply ? 'primary' : 'secondary'}
+            onClick={onApply}
+            disabled={!canApply}
+            loading={applying}
+          >
             {status.stagedVersion && !status.updateAvailable
               ? t('proxx.update.apply_staged', { version: displayVersion(status.stagedVersion) })
               : t('proxx.update.update_now')}
@@ -371,12 +384,24 @@ export function UpdateView(props: UpdateViewProps) {
       ) : null}
 
       <ProxxPanel
-        title={t('proxx.update.notes_title')}
+        title={t(newerBuild ? 'proxx.update.latest_notes_title' : 'proxx.update.notes_title')}
         meta={status.latestVersion ? displayVersion(status.latestVersion) : undefined}
       >
-        {status.releaseNotes.trim() ? (
+        {notes.trim() && newerBuild ? (
+          // Older than the running build: available for reference, not presented as upcoming.
+          <details className={styles.notesDetails}>
+            <summary className={styles.notesSummary}>
+              {t('proxx.update.latest_notes_summary', {
+                version: displayVersion(status.latestVersion),
+              })}
+            </summary>
+            <div className={styles.notes}>
+              <Markdown text={notes} />
+            </div>
+          </details>
+        ) : notes.trim() ? (
           <div className={styles.notes}>
-            <Markdown text={status.releaseNotes} />
+            <Markdown text={notes} />
           </div>
         ) : (
           <p className={styles.muted}>{t('proxx.update.notes_empty')}</p>

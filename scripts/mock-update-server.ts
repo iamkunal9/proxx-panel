@@ -11,6 +11,7 @@
  *   unsupported  `supported: false` with a reason; apply answers 409.
  *   uptodate     no update available; apply answers 409.
  *   old          the update route answers 404 (proxx build without in-panel updates).
+ *   newer        running v1.3.0-rc.1, newer than the latest release v1.2.0; nothing to apply.
  *
  * Apply flow: downloading → verifying → staged → waiting_idle (in-flight count drops by one per
  * --tick ms) → applying → restart. The restart really stops the HTTP listener for --gap ms, so
@@ -40,7 +41,8 @@ type State =
   | 'applying'
   | 'failed';
 
-const NOTES = `## proxx v1.3.0
+const NOTES = `<!-- cliproxyapi-linux-release-assets:start -->
+## proxx v1.3.0
 
 ### Highlights
 - **In-panel self-update**: check, download, verify and apply new releases from the panel.
@@ -54,13 +56,14 @@ const NOTES = `## proxx v1.3.0
 See the [full changelog](https://github.com/iamkunal9/proxx/releases) for details.
 
 <script>alert('raw html is never rendered')</script>
+<!-- cliproxyapi-linux-release-assets:end -->
 `;
 
 const update = {
   api_level: 1,
-  current_version: 'v1.2.0',
-  latest_version: scenario === 'uptodate' ? 'v1.2.0' : 'v1.3.0',
-  update_available: scenario !== 'uptodate',
+  current_version: scenario === 'newer' ? 'v1.3.0-rc.1' : 'v1.2.0',
+  latest_version: scenario === 'uptodate' || scenario === 'newer' ? 'v1.2.0' : 'v1.3.0',
+  update_available: scenario !== 'uptodate' && scenario !== 'newer',
   release_url: 'https://github.com/iamkunal9/proxx/releases/tag/v1.3.0',
   release_notes: NOTES,
   checked_at: new Date(Date.now() - 12 * 60 * 1000).toISOString(),

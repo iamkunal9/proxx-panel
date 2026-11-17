@@ -36,8 +36,11 @@ import {
   parseIntervalHours,
   parseWindow,
   reduceApply,
+  compareVersions,
   resultKey,
+  runningNewerBuild,
   safeHref,
+  stripHtmlComments,
   startTracking,
   stepperModel,
   validateSettingsDraft,
@@ -580,5 +583,76 @@ describe('settings', () => {
     } finally {
       post.mockRestore();
     }
+  });
+});
+
+describe('integration fixes', () => {
+  test('HTML comments are stripped from release notes; other raw HTML stays text', () => {
+    const notes =
+      '## Changes\n\n<!-- cliproxyapi-linux-release-assets:start -->\n- asset list\n' +
+      '<!-- cliproxyapi-linux-release-assets:end -->\n\n- **Fix** <b>bold</b>\n<!-- truncated';
+    expect(stripHtmlComments(notes)).not.toContain('<!--');
+    expect(stripHtmlComments('a<!--\nmulti\nline-->b')).toBe('ab');
+    const html = render({ status: status({ release_notes: notes }) });
+    expect(html).not.toContain('&lt;!--');
+    expect(html).not.toContain('cliproxyapi-linux-release-assets');
+    expect(html).toContain('&lt;b&gt;bold&lt;/b&gt;');
+    expect(html).toContain('<strong>Fix</strong>');
+  });
+
+  test('version ordering handles proxx suffixes and release candidates', () => {
+    expect(compareVersions('v8.0.73-proxx.4-rc.1', 'v8.0.73-proxx.3')).toBeGreaterThan(0);
+    expect(compareVersions('v8.0.73-proxx.3', 'v8.0.73-proxx.4-rc.1')).toBeLessThan(0);
+    expect(compareVersions('v8.0.73-proxx.4-rc.1', 'v8.0.73-proxx.4')).toBeLessThan(0);
+    expect(compareVersions('v8.0.73-proxx.4-rc.2', 'v8.0.73-proxx.4-rc.1')).toBeGreaterThan(0);
+    expect(compareVersions('v8.0.73-proxx.3', 'v8.0.73')).toBeGreaterThan(0);
+    expect(compareVersions('v8.0.74', 'v8.0.73-proxx.9')).toBeGreaterThan(0);
+    expect(compareVersions('v1.10.0', 'v1.9.9')).toBeGreaterThan(0);
+    expect(compareVersions('v1.2.0', '1.2.0')).toBe(0);
+  });
+
+  test('running a newer build labels the latest release and collapses its notes', () => {
+    const s = status({
+      current_version: 'v8.0.73-proxx.4-rc.1',
+      latest_version: 'v8.0.73-proxx.3',
+      update_available: false,
+    });
+    expect(runningNewerBuild(s)).toBe(true);
+    const html = render({ status: s });
+    expect(html).toContain('Latest release<');
+    expect(html).toContain('You&#x27;re running a newer build');
+    expect(html).not.toContain('You&#x27;re up to date');
+    expect(html).toContain('Latest release notes');
+    expect(html).toMatch(/<details[^>]*><summary[^>]*>Show notes for v8.0.73-proxx.3/);
+    expect(html).not.toMatch(/<details[^>]* open/);
+
+    const same = status({
+      current_version: 'v1.3.0',
+      latest_version: 'v1.3.0',
+      update_available: false,
+    });
+    expect(runningNewerBuild(same)).toBe(false);
+    const sameHtml = render({ status: same });
+    expect(sameHtml).toContain('You&#x27;re up to date');
+    expect(sameHtml).toContain('>Release notes<');
+    expect(sameHtml).not.toContain('<details');
+    // An available update is never a "newer build".
+    expect(runningNewerBuild(status())).toBe(false);
+  });
+
+  test('Update now is disabled and neutral (not primary) when nothing can be applied', () => {
+    const upToDate = render({
+      status: status({ current_version: 'v1.3.0', update_available: false }),
+    });
+    expect(upToDate).toMatch(
+      /<button class="btn btn-secondary"[^>]*disabled=""[^>]*><span>Update now/
+    );
+    expect(upToDate).not.toMatch(/btn-primary[^>]*><span>Update now/);
+    const busy = render({ status: status({ state: 'downloading' }) });
+    expect(busy).toMatch(/<button class="btn btn-secondary"[^>]*disabled=""[^>]*><span>Update now/);
+    const available = render();
+    expect(available).toMatch(
+      /<button class="btn btn-primary"(?![^>]*disabled)[^>]*><span>Update now/
+    );
   });
 });

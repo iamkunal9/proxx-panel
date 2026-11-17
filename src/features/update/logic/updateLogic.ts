@@ -369,3 +369,57 @@ export const canApplyUpdate = (status: UpdateStatus | null, tracking: ApplyTrack
 /** Only http(s) links leave the panel; anything else (javascript:, data:, …) is dropped. */
 export const safeHref = (url: string): string =>
   /^https?:\/\//i.test(url.trim()) ? url.trim() : '';
+
+/**
+ * Removes HTML comments (release tooling markers such as
+ * `<!-- cliproxyapi-linux-release-assets:start -->`). An unterminated comment, as left by a
+ * truncated body, is cut to the end. Other raw HTML stays and is rendered as text.
+ */
+export const stripHtmlComments = (text: string): string =>
+  text
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/<!--[\s\S]*$/, '')
+    .replace(/\n{3,}/g, '\n\n');
+
+const PRERELEASE_WORDS = /^(alpha|beta|rc|pre|preview|dev|snapshot|nightly)$/i;
+
+const versionTokens = (version: string): Array<number | string> =>
+  (normalizeVersion(version).match(/\d+|[a-z]+/g) ?? []).map((token) =>
+    /^\d+$/.test(token) ? Number(token) : token
+  );
+
+/**
+ * Orders proxx versions such as `v8.0.73-proxx.4-rc.1` (> 0 when a is newer). Number and word
+ * runs compare in order. When one version is a prefix of the other, a trailing prerelease word
+ * (rc, beta, …) makes the longer one older; any other suffix (`-proxx.3`) makes it newer.
+ */
+export function compareVersions(a: string, b: string): number {
+  const left = versionTokens(a);
+  const right = versionTokens(b);
+  for (let index = 0; index < Math.max(left.length, right.length); index += 1) {
+    const x = left[index];
+    const y = right[index];
+    if (x === undefined || y === undefined) {
+      const rest = (x ?? y) as number | string;
+      const longerIsOlder = typeof rest === 'string' && PRERELEASE_WORDS.test(rest);
+      const sign = x === undefined ? -1 : 1;
+      return longerIsOlder ? -sign : sign;
+    }
+    if (x === y) continue;
+    if (typeof x === 'number' && typeof y === 'number') return x - y;
+    if (typeof x === 'number') return 1;
+    if (typeof y === 'number') return -1;
+    // Two words: a prerelease word sorts before any other word.
+    const px = PRERELEASE_WORDS.test(x);
+    const py = PRERELEASE_WORDS.test(y);
+    if (px !== py) return px ? -1 : 1;
+    return x < y ? -1 : 1;
+  }
+  return 0;
+}
+
+/** The running build is newer than the latest release, so there is nothing to install. */
+export const runningNewerBuild = (status: UpdateStatus): boolean =>
+  !status.updateAvailable &&
+  Boolean(status.currentVersion && status.latestVersion) &&
+  compareVersions(status.currentVersion, status.latestVersion) > 0;
