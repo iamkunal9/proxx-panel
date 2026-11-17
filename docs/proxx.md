@@ -7,7 +7,7 @@ proxx (a fork of CLIProxyAPI; backend source lives at `../proxx`).
 The fork has two parts:
 
 1. A **reskin**: a Linear-style theme, dark by default, plus proxx branding.
-2. **Four new pages** for fork-only backend features: Spend & usage, Model groups, Pricing and Requests.
+2. **New pages** for fork-only backend features: Spend & usage, Model groups, Pricing, Requests and Updates.
 
 Both parts are designed so that `git merge upstream/main` keeps working with few or no conflicts.
 
@@ -56,13 +56,15 @@ All new code is in new files:
 - `src/features/modelGroups/`
 - `src/features/pricing/`
 - `src/features/requests/`
+- `src/features/update/`
 - `src/components/proxx/` (shared page primitives, formatters and icons)
 - `src/services/api/proxx*.ts` (API modules and normalization)
 - `src/types/proxx.ts`
 
 Routes are added in `src/router/MainRoutes.tsx`. The dashboard renders `<SpendStrip />` with one
 line in `src/features/dashboard/DashboardPage.tsx`. The Logs page error-log tab has a one-line link
-to `/requests` (`src/features/logs/LogsPage.tsx`).
+to `/requests` (`src/features/logs/LogsPage.tsx`). `MainLayout.tsx` renders `<UpdatePill />` in the header
+actions and an Updates entry in the Control group (both one-line `// proxx` hooks).
 
 Each page calls `/v8/management/proxx/*` through the shared `apiClient`. A 404 (or 501) means the
 backend is not a proxx build. In that case the page shows a "Requires the proxx backend" state,
@@ -154,6 +156,44 @@ What the page shows:
 - Unknown values render as "—". If logging is off and nothing is recorded, an explainer with an
   Enable button is shown; if older logs exist, a banner is shown above them.
 
+### Updates (`/#/updates`)
+
+In-panel self-update of the proxx binary. All routes are under `/v8/management/proxx/update`.
+
+- `GET /proxx/update` → `{api_level, current_version, latest_version, update_available, release_url,
+  release_notes (markdown), checked_at, last_check_error, supported, unsupported_reason,
+  state: idle|checking|downloading|verifying|staged|waiting_idle|applying|failed, inflight, staged_version,
+  config:{check, interval_hours, auto_apply, window}, last_result:{from,to,at,ok,rolled_back,error}|null}`.
+  A 404 means the backend predates in-panel updates: the page shows the install-script command instead.
+- `POST .../check` → status. `POST .../apply` → 202 + status, or 409 `{error}` (unsupported / nothing to
+  apply), shown as a notification. `POST .../cancel` cancels a pending apply.
+- Settings are written one key at a time with `PUT /config/proxx/update/<key>` for `check`,
+  `interval-hours`, `auto-apply` and `window` (`"HH:MM-HH:MM"` in the server's local time, `""` = any time).
+  Like every other v8 config write, the body is the raw JSON value (the generic `/config/*path` handler
+  stores the body verbatim). Only changed keys are written.
+
+What the panel shows:
+
+- A header pill, "Update available: vX → vY" (or "Updating proxx…"), which links to the page. The pill owns
+  the only poller (`src/features/update/useUpdatePoller.ts`): every 5 min, every 2 s while the state is
+  in progress or a post-apply reconnect is pending. State lives in `useUpdateStore` and is reset on logout;
+  responses from an old connection are dropped.
+- Current/latest version, last check time, "Check now", the release notes (rendered with the Requests
+  page's element-only Markdown renderer, so raw HTML shows as text) and "Update now" with a confirmation
+  dialog.
+- A stepper: download → verify → staged → wait for idle ("N requests in flight", with Cancel) → restart →
+  done.
+- After an apply, `reduceApply` in `src/features/update/logic/updateLogic.ts` (a pure state machine with an
+  injected clock) tracks the restart. Failed fetches are tolerated for 60 s. Success means the backend
+  reports the target version. A new `last_result` with `rolled_back` or `!ok` shows a red rolled-back or
+  failed state with the error. If the backend restarts but stays on the old version with no new result for
+  15 s, that is shown as failed. An apply started by the backend itself (auto-apply) is tracked the same way.
+- `supported: false` shows `unsupported_reason` and the install command, and disables "Update now".
+- A compatibility warning when `api_level` < `MIN_BACKEND_API` (`src/services/api/proxxUpdate.ts`). The
+  release workflow appends `proxx-min-backend-api: N` to the panel release notes (see README).
+- Settings: auto-check toggle, interval (whole hours 1–720), auto-apply toggle, maintenance window (two time
+  inputs or "Any time"; overnight windows such as 22:00–04:00 are valid, equal start/end is rejected).
+
 ## Tests
 
 - `tests/proxxApi.test.ts` covers normalization and serialization in the API modules, date ranges,
@@ -161,6 +201,10 @@ What the page shows:
 - `tests/proxxPages.test.ts` covers the page logic helpers and the money formatters.
 - `tests/proxxRequests.test.ts` covers the SSE parser, transcript reconstruction for all four formats,
   request API normalization, live filtering and merging, and the cURL builder.
+- `tests/proxxUpdate.test.ts` covers update status normalization, rendering in every state, the reconnect
+  state machine (success, rollback, timeout, stale version, cancel, auto-apply), the store flow
+  apply → waiting_idle → failed fetches → success with a mocked API and clock, 409/404 handling, the
+  settings PUTs, and window/interval validation.
 
 ## Screenshots
 
@@ -175,3 +219,8 @@ The `requests-*.png` shots use **mock data** from `scripts/mock-requests-server.
 dependency-free Bun server that implements the Requests contract and serves `dist/index.html`. It is
 not shipped in the build. To run it: `bun run build && bun scripts/mock-requests-server.ts
 [--port 8399] [--logging-off]`, then open the URL it prints and log in with any key.
+
+The `update-*.png` shots use **mock data** from `scripts/mock-update-server.ts`, which simulates the whole
+apply flow. Its restart really stops the HTTP listener for `--gap` ms (default 1200), so polls fail at the
+network level. Run it with `bun run build && bun scripts/mock-update-server.ts [--port 8398]
+[--scenario available|rollback|unsupported|uptodate|old] [--tick 1500] [--gap 1200] [--inflight 3]`.

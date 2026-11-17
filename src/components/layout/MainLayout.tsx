@@ -49,7 +49,8 @@ import {
 } from '@/features/plugins/pluginResources';
 import { APIKEY_FUN_DISPLAY_NAME, hasApiKeyFunConfig } from '@/features/providers/sponsor';
 import { triggerHeaderRefresh } from '@/hooks/useHeaderRefresh';
-import { IconLayers, IconRequests, IconSpend, IconTag } from '@/components/proxx/icons';
+import { IconLayers, IconRequests, IconSpend, IconTag, IconUpdate } from '@/components/proxx/icons';
+import { UpdatePill } from '@/features/update/components/UpdatePill'; // proxx
 import { LANGUAGE_LABEL_KEYS, LANGUAGE_ORDER } from '@/utils/constants';
 import { isSupportedLanguage } from '@/utils/language';
 import { getSidebarShortcutLabel, isSidebarToggleShortcut } from '@/utils/sidebarShortcut';
@@ -717,6 +718,13 @@ export function MainLayout() {
           metaKey: 'nav_meta.system_info',
           icon: sidebarIcons.system,
         },
+        // proxx
+        {
+          path: '/updates',
+          labelKey: 'proxx.nav.updates',
+          metaKey: 'proxx.nav_meta.updates',
+          icon: <IconUpdate size={18} />,
+        },
       ],
     },
     ...(pluginPageNavItems.length > 0
@@ -1047,6 +1055,7 @@ export function MainLayout() {
         </div>
 
         <div className="header-actions floating-actions">
+          <UpdatePill /> {/* proxx */}
           <Button
             variant="ghost"
             size="sm"
