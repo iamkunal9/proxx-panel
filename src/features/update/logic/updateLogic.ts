@@ -365,3 +365,7 @@ export const canApplyUpdate = (status: UpdateStatus | null, tracking: ApplyTrack
     !isInProgress(status.state) &&
     !isTracking(tracking)
   );
+
+/** Only http(s) links leave the panel; anything else (javascript:, data:, …) is dropped. */
+export const safeHref = (url: string): string =>
+  /^https?:\/\//i.test(url.trim()) ? url.trim() : '';

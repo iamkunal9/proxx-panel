@@ -134,6 +134,7 @@ export function UpdatesPage() {
         onApply={handleApply}
         onCancel={handleCancel}
         onDismiss={store.dismissResult}
+        dismissedResult={store.dismissedResult}
         onRetry={refresh}
         onCopyInstall={handleCopy}
         settings={

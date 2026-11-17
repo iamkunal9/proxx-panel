@@ -36,6 +36,8 @@ import {
   parseIntervalHours,
   parseWindow,
   reduceApply,
+  resultKey,
+  safeHref,
   startTracking,
   stepperModel,
   validateSettingsDraft,
@@ -239,6 +241,24 @@ describe('status rendering', () => {
     expect(html).toContain('health check failed: exit status 2');
     expect(html).toContain('role="alert"');
   });
+});
+
+test('a dismissed rolled-back result stays hidden; unsafe release links are dropped', () => {
+  const lastResult = {
+    from: 'v1.2.0',
+    to: 'v1.3.0',
+    at: 'x',
+    ok: false,
+    rolled_back: true,
+    error: 'boom',
+  };
+  const s = status({ last_result: lastResult, release_url: 'javascript:alert(1)' });
+  expect(render({ status: s })).toContain('was rolled back');
+  const html = render({ status: s, dismissedResult: resultKey(s.lastResult) });
+  expect(html).not.toContain('was rolled back');
+  expect(html).not.toContain('javascript:');
+  expect(html).not.toContain('View release on GitHub');
+  expect(safeHref('https://github.com/x')).toBe('https://github.com/x');
 });
 
 describe('apply tracking state machine', () => {

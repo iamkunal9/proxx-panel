@@ -2,7 +2,7 @@
 
 > The management panel for **proxx**, a fork of CLIProxyAPI. This is a reskin (dark-first, Linear-style) of the upstream
 > CLI Proxy API Management Center, plus Spend & usage, Model groups, Pricing, Requests and Updates pages. See
-> [docs/proxx.md](./docs/proxx.md). The upstream README follows the proxx release convention below.
+> [docs/proxx.md](./docs/proxx.md). The proxx release convention comes first; the upstream README follows.
 
 ### proxx release convention: `proxx-min-backend-api`
 

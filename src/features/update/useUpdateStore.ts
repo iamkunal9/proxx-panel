@@ -7,7 +7,13 @@ import { create } from 'zustand';
 import { apiClient } from '@/services/api/client';
 import { isUpdateRouteMissing, proxxUpdateApi } from '@/services/api/proxxUpdate';
 import type { UpdateStatus } from '@/types/proxx';
-import { IDLE_TRACKING, isTracking, reduceApply, type ApplyTracking } from './logic/updateLogic';
+import {
+  IDLE_TRACKING,
+  isTracking,
+  reduceApply,
+  resultKey,
+  type ApplyTracking,
+} from './logic/updateLogic';
 
 /** Overridable clock so tests can drive the reconnect window without sleeping. */
 export const updateClock = { now: () => Date.now() };
@@ -25,6 +31,8 @@ interface UpdateStoreState {
   applying: boolean;
   cancelling: boolean;
   tracking: ApplyTracking;
+  /** `resultKey` of the last result the user dismissed, so it is not shown again. */
+  dismissedResult: string;
   refresh: () => Promise<void>;
   check: () => Promise<void>;
   /** Rejects with the backend message (e.g. a 409) so the caller can notify. */
@@ -43,6 +51,7 @@ const INITIAL = {
   applying: false,
   cancelling: false,
   tracking: IDLE_TRACKING,
+  dismissedResult: '',
 };
 
 let inflightRefresh: Promise<void> | null = null;
@@ -133,7 +142,11 @@ export const useUpdateStore = create<UpdateStoreState>((set, get) => {
     },
 
     dismissResult() {
-      set({ tracking: reduceApply(get().tracking, { type: 'dismiss' }) });
+      const { tracking, status } = get();
+      set({
+        tracking: reduceApply(tracking, { type: 'dismiss' }),
+        dismissedResult: resultKey(status?.lastResult ?? tracking.result),
+      });
     },
 
     reset() {

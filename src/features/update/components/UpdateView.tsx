@@ -23,6 +23,8 @@ import {
   formatTimestamp,
   isTerminal,
   isTracking,
+  resultKey,
+  safeHref,
   showStepper,
   stepperModel,
   type ApplyTracking,
@@ -41,6 +43,8 @@ export interface UpdateViewProps {
   onApply: () => void;
   onCancel: () => void;
   onDismiss: () => void;
+  /** `resultKey` of a dismissed result; a matching rolled-back `last_result` is not shown. */
+  dismissedResult?: string;
   onRetry: () => void;
   onCopyInstall?: () => void;
   /** Rendered below the release notes (the settings form). */
@@ -217,6 +221,7 @@ export function UpdateView(props: UpdateViewProps) {
     onRetry,
     onCopyInstall,
     settings,
+    dismissedResult = '',
   } = props;
   const { t } = useTranslation();
 
@@ -251,13 +256,21 @@ export function UpdateView(props: UpdateViewProps) {
 
       {isTerminal(tracking) ? (
         <ResultNotice tracking={tracking} status={status} onDismiss={onDismiss} />
-      ) : lastResult && lastResult.rolledBack && !isTracking(tracking) ? (
+      ) : lastResult &&
+        lastResult.rolledBack &&
+        !isTracking(tracking) &&
+        resultKey(lastResult) !== dismissedResult ? (
         <Notice
           tone="danger"
           title={t('proxx.update.result_rolled_back_title', {
             to: displayVersion(lastResult.to),
             from: displayVersion(lastResult.from),
           })}
+          action={
+            <Button variant="ghost" size="sm" onClick={onDismiss}>
+              {t('proxx.update.dismiss')}
+            </Button>
+          }
         >
           <p>
             {t('proxx.update.last_result_at', { at: formatTimestamp(lastResult.at) })}{' '}
@@ -318,10 +331,10 @@ export function UpdateView(props: UpdateViewProps) {
               ? t('proxx.update.apply_staged', { version: displayVersion(status.stagedVersion) })
               : t('proxx.update.update_now')}
           </Button>
-          {status.releaseUrl ? (
+          {safeHref(status.releaseUrl) ? (
             <a
               className={styles.releaseLink}
-              href={status.releaseUrl}
+              href={safeHref(status.releaseUrl)}
               target="_blank"
               rel="noopener noreferrer nofollow"
             >
