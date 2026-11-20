@@ -203,6 +203,8 @@ export interface AssembledResponse {
 
 export interface RequestResponseSection {
   status: number | null;
+  /** Local read/dial/stream diagnostics the logger wrote into the final response (backend v8.0.79+). */
+  errors: string[];
   headers: HeaderMap;
   body: string;
   bodyTruncated: boolean;
