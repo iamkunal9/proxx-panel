@@ -146,6 +146,9 @@ export function normalizeRequestDetail(raw: unknown): RequestDetail {
     attempts: readList(record.attempts).map(normalizeAttempt),
     response: {
       status: readStatus(response.status),
+      errors: readList(response.errors).filter(
+        (value): value is string => typeof value === 'string' && value !== ''
+      ),
       headers: normalizeHeaders(response.headers),
       body: readBody(response.body),
       bodyTruncated: readBool(response.body_truncated),

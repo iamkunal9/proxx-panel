@@ -320,6 +320,15 @@ describe('requests API normalization', () => {
     ]);
     expect(detail.response.sseEvents).toBeNull();
     expect(detail.response.assembled?.toolCalls[0].name).toBe('n');
+    expect(detail.response.errors).toEqual([]);
+  });
+
+  test('detail reads response.errors diagnostics and drops non-strings', () => {
+    const detail = normalizeRequestDetail({
+      row: { id: 'a' },
+      response: { status: 502, errors: ['dial tcp: refused', 7, '', null, 'stream reset'] },
+    });
+    expect(detail.response.errors).toEqual(['dial tcp: refused', 'stream reset']);
   });
 
   test('list params omit empty values', () => {

@@ -542,6 +542,11 @@ function ResponseTab({ detail, onOpenRaw }: { detail: Detail; onOpenRaw: () => v
           </span>
         ) : null}
       </div>
+      {response.errors.map((error, index) => (
+        <pre key={index} className={styles.attemptError}>
+          {error}
+        </pre>
+      ))}
       <Section
         title={t('proxx.requests.headers')}
         defaultOpen={false}
