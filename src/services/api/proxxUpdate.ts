@@ -12,7 +12,7 @@ import type { UpdateConfig, UpdateResult, UpdateState, UpdateStatus } from '@/ty
 import { isRecord } from '@/utils/helpers';
 
 /** The lowest backend `api_level` this panel understands. Also stamped into release notes. */
-export const MIN_BACKEND_API = 1;
+export const MIN_BACKEND_API = 2;
 
 export const INSTALL_COMMAND =
   'curl -fsSL https://raw.githubusercontent.com/iamkunal9/proxx/main/install.sh | sh';
