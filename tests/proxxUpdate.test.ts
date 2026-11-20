@@ -51,7 +51,7 @@ import { saveUpdateSettings } from '@/features/update/updateActions';
 import { updateClock, useUpdateStore } from '@/features/update/useUpdateStore';
 
 const RAW_STATUS = {
-  api_level: 1,
+  api_level: 2,
   current_version: 'v1.2.0',
   latest_version: 'v1.3.0',
   update_available: true,
@@ -113,7 +113,7 @@ describe('update API normalization', () => {
       staged_version: 'v1.3.0',
       last_result: { from: 'v1.1.0', to: 'v1.2.0', at: 'x', ok: true, rolled_back: false },
     });
-    expect(s.apiLevel).toBe(1);
+    expect(s.apiLevel).toBe(2);
     expect(s.state).toBe('waiting_idle');
     expect(s.inflight).toBe(3);
     expect(s.config).toEqual({
@@ -219,8 +219,8 @@ describe('status rendering', () => {
   });
 
   test('api_level below the panel minimum shows a compatibility warning', () => {
-    expect(MIN_BACKEND_API).toBe(1);
-    expect(render({ status: status({ api_level: 0 }) })).toContain(
+    expect(MIN_BACKEND_API).toBe(2);
+    expect(render({ status: status({ api_level: 1 }) })).toContain(
       'Backend is older than this panel expects'
     );
     expect(render()).not.toContain('Backend is older than this panel expects');
