@@ -369,8 +369,9 @@ export function RequestsPage() {
     });
 
   const openRow = useMemo(() => rows.find((row) => row.id === openId) ?? null, [rows, openId]);
-  const modelOptions = distinctValues([...seen.models], model);
-  const providerOptions = distinctValues([...seen.providers], provider);
+  // Server facets cover every logged request in the range; seen adds rows that arrived live since.
+  const modelOptions = distinctValues([...(meta?.models ?? []), ...seen.models], model);
+  const providerOptions = distinctValues([...(meta?.providers ?? []), ...seen.providers], provider);
   const filtered = Boolean(status || model || provider || q || range !== 'all');
   // The default time range alone does not count as "filtering" for the logging-off empty state.
   const narrowed = Boolean(status || model || provider || q);

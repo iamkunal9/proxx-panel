@@ -141,6 +141,12 @@ export interface RequestRow {
 export interface RequestListPage {
   items: RequestRow[];
   nextCursor: string;
+  /**
+   * Every model / provider logged in the time window (first page only), for the filter dropdowns.
+   * Empty from backends that predate it; the page then falls back to values from loaded rows.
+   */
+  models: string[];
+  providers: string[];
   requestLogEnabled: boolean;
   totalSizeBytes: number | null;
   /** 0 means unlimited. */
