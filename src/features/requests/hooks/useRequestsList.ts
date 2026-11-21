@@ -146,6 +146,9 @@ export function useRequestsList(filters: RequestFilters) {
       totalSizeBytes: page.totalSizeBytes,
       maxTotalSizeBytes: page.maxTotalSizeBytes,
       logDir: page.logDir,
+      ...(page.models.length || page.providers.length
+        ? { models: page.models, providers: page.providers }
+        : {}),
     });
     return items;
   }, [setMeta]);

@@ -74,6 +74,8 @@ export function normalizeRequestRow(raw: unknown): RequestRow {
   };
 }
 
+const readStringList = (value: unknown): string[] => readList(value).map(readText).filter(Boolean);
+
 export function normalizeRequestList(raw: unknown): RequestListPage {
   const record = isRecord(raw) ? raw : {};
   return {
@@ -82,6 +84,8 @@ export function normalizeRequestList(raw: unknown): RequestListPage {
       .map(normalizeRequestRow)
       .filter((row) => row.id),
     nextCursor: readText(record.next_cursor),
+    models: readStringList(record.models),
+    providers: readStringList(record.providers),
     requestLogEnabled: readBool(record.request_log_enabled),
     totalSizeBytes: readNonNegative(record.total_size_bytes),
     maxTotalSizeBytes: readCount(record.max_total_size_bytes),

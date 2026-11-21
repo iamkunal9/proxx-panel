@@ -305,6 +305,17 @@ describe('requests API normalization', () => {
     expect(page.maxTotalSizeBytes).toBe(0);
   });
 
+  test('list facets: strings kept, junk dropped, missing on old backends means empty', () => {
+    const page = normalizeRequestList({
+      items: [],
+      models: ['jev-latest', '', 7, null, 'gpt-6-luna'],
+      providers: ['typesafe', { x: 1 }],
+    });
+    expect(page.models).toEqual(['jev-latest', '7', 'gpt-6-luna']);
+    expect(page.providers).toEqual(['typesafe']);
+    expect(normalizeRequestList({ items: [] }).models).toEqual([]);
+  });
+
   test('detail keeps bodies verbatim and sse_events null when absent', () => {
     const detail = normalizeRequestDetail({
       row: { id: 'a' },
